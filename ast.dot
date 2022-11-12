@@ -1,0 +1,45 @@
+digraph AST {
+	subgraph cluster_expr {
+		expr [style = filled; color = red;]
+		expr_1 [label = "addend"]
+		expr_2 [label = "add"]
+		expr_3 [label = "addend"]
+		expr -> expr_1
+		expr_1 -> expr_2
+		expr_2 -> expr_3
+		}
+	expr_1 -> addend
+	expr_3 -> addend
+	subgraph cluster_args {
+		args [style = filled; color = red;]
+		args_1 [label = "name"]
+		args_2 [label = "arg_sep"]
+		args_3 [label = "args"]
+		args -> args_1
+		args_1 -> args_2
+		args_2 -> args_3
+		}
+	args_1 -> name
+	args_3 -> args
+	subgraph cluster_addend {
+		addend [style = filled; color = red;]
+		addend_1 [label = "int"]
+		addend_2 [label = "func_call"]
+		addend -> addend_1
+		addend -> addend_2
+		}
+	addend_2 -> func_call
+	subgraph cluster_func_call {
+		func_call [style = filled; color = red;]
+		func_call_1 [label = "name"]
+		func_call_2 [label = "op"]
+		func_call_3 [label = "args"]
+		func_call_4 [label = "cp"]
+		func_call -> func_call_1
+		func_call_1 -> func_call_2
+		func_call_2 -> func_call_3
+		func_call_3 -> func_call_4
+		}
+	func_call_1 -> name
+	func_call_3 -> args
+}

@@ -1,0 +1,54 @@
+digraph AST {
+    subgraph cluster_3 {
+        style = filled;
+        color = lightpink;
+        label = "args";
+        
+        args1 [label = "name";]
+        args2 [label = ","]
+        
+        args -> args1 -> args2 -> args;
+        args1 -> DONE;
+    }
+    subgraph cluster_4 {
+        style = filled;
+        color = lightcoral;
+        label = "expr";
+        
+        expr1 [label = "addend";];
+        expr2 [label = "+"];
+        expr3 [label = "addend";];
+        
+        expr -> expr1 -> expr2 -> expr3;
+    }
+    subgraph cluster_function_call {
+        style = filled;
+        color = lightblue;
+        label = "addend";
+
+
+        add1 [label = "function call"];
+        add2 [label = "(0-9)+"]
+
+        addend -> add2;
+        addend -> add1;
+    }
+    subgraph cluster_addend {
+        style = filled;
+        color = lightgreen;
+        label = "function call";
+        
+        function_call [label = "function call";];
+        function_call_1 [label = "name";];
+        function_call_2 [label = "(";];
+        function_call_3 [label = "args";];
+        function_call_4 [label = ")";];
+        
+        function_call -> function_call_1 -> function_call_2 -> function_call_3 -> function_call_4;
+    }
+
+    function_call_3 -> args
+    add1 -> function_call
+    expr1 -> addend
+    expr3 -> addend
+}

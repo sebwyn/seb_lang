@@ -1,0 +1,13 @@
+#add +
+#!int (0-9)+
+#arg_sep ,
+#op (
+#cp )
+
+*expr: addend add addend
+addend: int
+
+addend: func_call
+func_call: name op args cp
+args: name arg_sep args
+args: name
