@@ -12,7 +12,7 @@ use std::{
 
 use regex::Regex;
 
-pub trait Token {
+pub trait TokenDefinition {
     //fn consume(&self);
     fn characters(&self) -> &str;
 }
@@ -26,7 +26,7 @@ impl ExactToken {
         }
     }
 }
-impl Token for ExactToken {
+impl TokenDefinition for ExactToken {
     fn characters(&self) -> &str {
         &self.characters
     }
@@ -44,7 +44,7 @@ impl RegToken {
         })
     }
 }
-impl Token for RegToken {
+impl TokenDefinition for RegToken {
     fn characters(&self) -> &str {
         &self.characters
     }
@@ -52,11 +52,12 @@ impl Token for RegToken {
 
 #[derive(Clone, Default)]
 pub struct RuleNode {
+    pub terminal: bool,
     pub children: HashMap<String, RuleNode>,
 }
 
 pub struct AstRules {
-    pub tokens: HashMap<String, Box<dyn Token>>,
+    pub tokens: Vec<(String, Box<dyn TokenDefinition>)>,
     pub rules: HashMap<String, RuleNode>,
 }
 
@@ -88,7 +89,7 @@ impl std::fmt::Debug for ParseErr {
 
 impl Error for ParseErr {}
 
-fn add_rule(node: &mut RuleNode, rule_vec: &[String]) {
+fn add_rule(node: &mut RuleNode, rule_vec: &[String]) -> bool {
     if let Some(name) = rule_vec.get(0) {
         let next_node = if let Some(child) = node.children.get_mut(name) {
             child
@@ -96,8 +97,10 @@ fn add_rule(node: &mut RuleNode, rule_vec: &[String]) {
             node.children.insert(name.clone(), RuleNode::default());
             node.children.get_mut(name).unwrap()
         };
-
-        return add_rule(next_node, rule_vec.split_at(1).1);
+        next_node.terminal = add_rule(next_node, rule_vec.split_at(1).1);
+        false
+    } else {
+        true
     }
 }
 
@@ -113,14 +116,14 @@ impl AstRules {
             .peekable();
 
         //consume token defs in a loop
-        let mut tokens = HashMap::new();
+        let mut tokens = Vec::new();
         loop {
             match Self::consume_token_def(&mut lines) {
-                Ok((token, characters)) => {
-                    let last_token = tokens.insert(token.clone(), characters);
-                    if last_token.is_some() {
+                Ok((token, definition)) => {
+                    let last_token = tokens.push((token.clone(), definition));
+                    /*if last_token.is_some() {
                         Err(ParseErr::TokenReassign(token))?;
-                    }
+                    }*/
                 }
                 Err(ParseErr::ConsumeErr) => break,
                 e => {
@@ -172,7 +175,7 @@ impl AstRules {
 
     fn consume_token_def<'a, T: Iterator<Item = &'a str>>(
         lines: &mut Peekable<T>,
-    ) -> Result<(String, Box<dyn Token>), ParseErr> {
+    ) -> Result<(String, Box<dyn TokenDefinition>), ParseErr> {
         if let Some(line) = lines.peek() {
             if line.chars().nth(0).unwrap() == '#' {
                 //let mut line = lines.next().unwrap();

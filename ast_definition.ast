@@ -1,11 +1,27 @@
 #add +
-#!int (0-9)+
 #arg_sep ,
 #op (
 #cp )
+#ob {
+#cb }
+#end_line ;
 
-*expr: addend add addend
+#!int (0-9)+
+#!name (a-z|A-Z).(A-Z|1-9)*
+
+*library: function library
+library: function
+
+function: name op args cp ob body cb
+
+body: statement body
+body: statement
+
+statement: expression end_line
+
+expression: addend add addend
 addend: int
+addend: name
 
 addend: func_call
 func_call: name op args cp

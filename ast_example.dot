@@ -17,7 +17,7 @@ digraph AST {
         
         expr1 [label = "addend";];
         expr2 [label = "+"];
-        expr3 [label = "addend";];
+        expr3 [label = "addend"];
         
         expr -> expr1 -> expr2 -> expr3;
     }
