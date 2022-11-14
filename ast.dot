@@ -1,13 +1,14 @@
 digraph AST {
 	subgraph cluster_function {
 		function [style = filled; color = red;]
-		function_1 [label = "name"; style = filled; shape = "ellipse"]
-		function_2 [label = "op"; style = filled; shape = "ellipse"]
-		function_3 [label = "args"; style = filled; shape = "ellipse"]
-		function_4 [label = "cp"; style = filled; shape = "ellipse"]
-		function_5 [label = "ob"; style = filled; shape = "ellipse"]
-		function_6 [label = "body"; style = filled; shape = "ellipse"]
-		function_7 [label = "cb"; style = filled; shape = "box"]
+		function_1 [label = "func: 1"; style = filled; shape = "ellipse"]
+		function_2 [label = "name: 1"; style = filled; shape = "ellipse"]
+		function_3 [label = "op: 1"; style = filled; shape = "ellipse"]
+		function_4 [label = "args: 1"; style = filled; shape = "ellipse"]
+		function_5 [label = "cp: 1"; style = filled; shape = "ellipse"]
+		function_6 [label = "ob: 1"; style = filled; shape = "ellipse"]
+		function_7 [label = "body: 1"; style = filled; shape = "ellipse"]
+		function_8 [label = "cb: 1"; style = filled; shape = "box"]
 		function -> function_1
 		function_1 -> function_2
 		function_2 -> function_3
@@ -15,76 +16,77 @@ digraph AST {
 		function_4 -> function_5
 		function_5 -> function_6
 		function_6 -> function_7
+		function_7 -> function_8
 		}
-	function_3 -> args
-	function_6 -> body
-	subgraph cluster_body {
-		body [style = filled; color = red;]
-		body_1 [label = "statement"; style = filled; shape = "box"]
-		body_2 [label = "body"; style = filled; shape = "box"]
-		body -> body_1
-		body_1 -> body_2
-		}
-	body_1 -> statement
-	body_2 -> body
+	function_4 -> args
+	function_7 -> body
 	subgraph cluster_addend {
 		addend [style = filled; color = red;]
-		addend_1 [label = "int"; style = filled; shape = "box"]
-		addend_2 [label = "name"; style = filled; shape = "box"]
-		addend_3 [label = "func_call"; style = filled; shape = "box"]
+		addend_1 [label = "name: 2"; style = filled; shape = "box"]
+		addend_2 [label = "int: 3"; style = filled; shape = "box"]
+		addend_3 [label = "func_call: 1"; style = filled; shape = "box"]
 		addend -> addend_1
 		addend -> addend_2
 		addend -> addend_3
 		}
 	addend_3 -> func_call
+	subgraph cluster_body {
+		body [style = filled; color = red;]
+		body_1 [label = "statement: 1"; style = filled; shape = "box"]
+		body_2 [label = "body: 1"; style = filled; shape = "box"]
+		body -> body_1
+		body_1 -> body_2
+		}
+	body_1 -> statement
+	body_2 -> body
+	subgraph cluster_statement {
+		statement [style = filled; color = red;]
+		statement_1 [label = "expression: 1"; style = filled; shape = "ellipse"]
+		statement_2 [label = "end_line: 1"; style = filled; shape = "box"]
+		statement -> statement_1
+		statement_1 -> statement_2
+		}
+	statement_1 -> expression
+	subgraph cluster_args {
+		args [style = filled; color = red;]
+		args_1 [label = "name: 1"; style = filled; shape = "box"]
+		args_2 [label = "arg_sep: 1"; style = filled; shape = "ellipse"]
+		args_3 [label = "args: 1"; style = filled; shape = "box"]
+		args -> args_1
+		args_1 -> args_2
+		args_2 -> args_3
+		}
+	args_3 -> args
+	subgraph cluster_library {
+		library [style = filled; color = red;]
+		library_1 [label = "function: 1"; style = filled; shape = "box"]
+		library_2 [label = "library: 1"; style = filled; shape = "box"]
+		library -> library_1
+		library_1 -> library_2
+		}
+	library_1 -> function
+	library_2 -> library
 	subgraph cluster_func_call {
 		func_call [style = filled; color = red;]
-		func_call_1 [label = "name"; style = filled; shape = "ellipse"]
-		func_call_2 [label = "op"; style = filled; shape = "ellipse"]
-		func_call_3 [label = "args"; style = filled; shape = "ellipse"]
-		func_call_4 [label = "cp"; style = filled; shape = "box"]
+		func_call_1 [label = "name: 1"; style = filled; shape = "ellipse"]
+		func_call_2 [label = "op: 1"; style = filled; shape = "ellipse"]
+		func_call_3 [label = "args: 1"; style = filled; shape = "ellipse"]
+		func_call_4 [label = "cp: 1"; style = filled; shape = "box"]
 		func_call -> func_call_1
 		func_call_1 -> func_call_2
 		func_call_2 -> func_call_3
 		func_call_3 -> func_call_4
 		}
 	func_call_3 -> args
-	subgraph cluster_library {
-		library [style = filled; color = red;]
-		library_1 [label = "function"; style = filled; shape = "box"]
-		library_2 [label = "library"; style = filled; shape = "box"]
-		library -> library_1
-		library_1 -> library_2
-		}
-	library_1 -> function
-	library_2 -> library
-	subgraph cluster_statement {
-		statement [style = filled; color = red;]
-		statement_1 [label = "expression"; style = filled; shape = "ellipse"]
-		statement_2 [label = "end_line"; style = filled; shape = "box"]
-		statement -> statement_1
-		statement_1 -> statement_2
-		}
-	statement_1 -> expression
 	subgraph cluster_expression {
 		expression [style = filled; color = red;]
-		expression_1 [label = "addend"; style = filled; shape = "ellipse"]
-		expression_2 [label = "add"; style = filled; shape = "ellipse"]
-		expression_3 [label = "addend"; style = filled; shape = "box"]
+		expression_1 [label = "addend: 1"; style = filled; shape = "ellipse"]
+		expression_2 [label = "add: 1"; style = filled; shape = "ellipse"]
+		expression_3 [label = "addend: 1"; style = filled; shape = "box"]
 		expression -> expression_1
 		expression_1 -> expression_2
 		expression_2 -> expression_3
 		}
 	expression_1 -> addend
 	expression_3 -> addend
-	subgraph cluster_args {
-		args [style = filled; color = red;]
-		args_1 [label = "name"; style = filled; shape = "box"]
-		args_2 [label = "arg_sep"; style = filled; shape = "ellipse"]
-		args_3 [label = "args"; style = filled; shape = "box"]
-		args -> args_1
-		args_1 -> args_2
-		args_2 -> args_3
-		}
-	args_3 -> args
 }

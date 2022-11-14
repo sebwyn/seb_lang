@@ -1,3 +1,4 @@
+#func fn
 #add +
 #arg_sep ,
 #op (
@@ -6,13 +7,13 @@
 #cb }
 #end_line ;
 
-#!int (0-9)+
-#!name (a-z|A-Z).(A-Z|1-9)*
+#!int [0-9]+
+#!name [a-z|A-Z]+
 
 *library: function library
 library: function
 
-function: name op args cp ob body cb
+function: func name op args cp ob body cb
 
 body: statement body
 body: statement
@@ -20,10 +21,10 @@ body: statement
 statement: expression end_line
 
 expression: addend add addend
-addend: int
-addend: name
-
 addend: func_call
+addend: name
+addend: int
+
 func_call: name op args cp
 args: name arg_sep args
 args: name

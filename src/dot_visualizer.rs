@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fs, error::Error};
+use std::{fs, error::Error};
 
 use crate::ast_rules::{AstRules, RuleNode};
 
@@ -45,11 +45,11 @@ impl<T> Cluster<'_, T> {
         let dot_name = format!("{}_{}", self.prefix, self.index);
         let shape = if node.terminal { "box" } else { "ellipse" };
 
-        self.nodes += &format!("\t\t{} [label = \"{}\"; style = filled; shape = \"{}\"]\n", dot_name, name, shape);
+        self.nodes += &format!("\t\t{} [label = \"{}: {}\"; style = filled; shape = \"{}\"]\n", dot_name, name, node.priority, shape);
         self.index += 1;
 
         //if the name is not a token, also add the node to the linker
-        if self.tokens.iter().find(|(key, definition)| key.as_str() == name).is_none() {
+        if self.tokens.iter().find(|(key, _)| key.as_str() == name).is_none() {
             //add this to the linker
             self.links += &format!("\t{} -> {}\n", dot_name, name);
         }

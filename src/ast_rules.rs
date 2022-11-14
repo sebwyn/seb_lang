@@ -15,6 +15,7 @@ use regex::Regex;
 pub trait TokenDefinition {
     //fn consume(&self);
     fn characters(&self) -> &str;
+    fn consume<'a>(&self, stream: &'a str) -> (&'a str, &'a str);
 }
 pub struct ExactToken {
     pub characters: String,
@@ -26,9 +27,19 @@ impl ExactToken {
         }
     }
 }
+
 impl TokenDefinition for ExactToken {
     fn characters(&self) -> &str {
         &self.characters
+    }
+    fn consume<'a>(&self, stream: &'a str) -> (&'a str, &'a str) {
+        if self.characters.len() <= stream.len() {
+            let (potential_word, next_stream) = stream.split_at(self.characters.len());
+            if potential_word == self.characters {
+                return (potential_word, next_stream)
+            }
+        }
+        ("", stream)
     }
 }
 
@@ -48,17 +59,36 @@ impl TokenDefinition for RegToken {
     fn characters(&self) -> &str {
         &self.characters
     }
+    fn consume<'a>(&self, stream: &'a str) -> (&'a str, &'a str) {
+        let found = self.reg.find(stream);
+        if let Some(m) = found {
+            if m.start() == 0 {
+                return stream.split_at(m.end());
+            }
+        }
+        ("", stream)
+    }
 }
 
-#[derive(Clone, Default)]
+#[derive(Clone, Default, Debug)]
 pub struct RuleNode {
+    pub priority: u32,
     pub terminal: bool,
     pub children: HashMap<String, RuleNode>,
+}
+impl RuleNode {
+    fn new(priority: u32) -> Self {
+        Self {
+            priority,
+            ..Default::default()
+        }
+    }
 }
 
 pub struct AstRules {
     pub tokens: Vec<(String, Box<dyn TokenDefinition>)>,
     pub rules: HashMap<String, RuleNode>,
+    pub root_rule: String,
 }
 
 pub enum ParseErr {
@@ -89,15 +119,15 @@ impl std::fmt::Debug for ParseErr {
 
 impl Error for ParseErr {}
 
-fn add_rule(node: &mut RuleNode, rule_vec: &[String]) -> bool {
+fn add_rule(priority: u32, node: &mut RuleNode, rule_vec: &[String]) -> bool {
     if let Some(name) = rule_vec.get(0) {
         let next_node = if let Some(child) = node.children.get_mut(name) {
             child
         } else {
-            node.children.insert(name.clone(), RuleNode::default());
+            node.children.insert(name.clone(), RuleNode::new(priority));
             node.children.get_mut(name).unwrap()
         };
-        next_node.terminal = add_rule(next_node, rule_vec.split_at(1).1);
+        next_node.terminal = add_rule(priority, next_node, rule_vec.split_at(1).1);
         false
     } else {
         true
@@ -134,21 +164,32 @@ impl AstRules {
 
         //consume rules in a loop
         let mut root: Option<String> = None;
+        let mut rule_count: HashMap<String, u32> = HashMap::new();
         let mut rules: HashMap<String, RuleNode> = HashMap::new();
         loop {
             match Self::consume_rule(&mut lines) {
                 Ok((name, rule_vec, is_root)) => {
                     //add this rule to our rule set
                     if rule_vec.len() > 0 {
-                        //get or insert
+                        //priority means nothing at the root level
                         let node = match rules.get_mut(&name) {
                             Some(node) => node,
                             None => {
-                                rules.insert(name.clone(), RuleNode::default());
+                                rules.insert(name.clone(), RuleNode::new(0));
                                 rules.get_mut(&name).unwrap()
                             }
                         };
-                        add_rule(node, &rule_vec);
+                        let priority = match rule_count.get_mut(&name) {
+                            Some(priority) => priority,
+                            None => {
+                                rule_count.insert(name.clone(), 0);
+                                rule_count.get_mut(&name).unwrap()
+                            }
+                        };
+                        //add one for this new rule
+                        *priority += 1;
+
+                        add_rule(*priority, node, &rule_vec);
 
                         if is_root {
                             root = Some(name);
@@ -170,6 +211,7 @@ impl AstRules {
         Ok(Self {
             tokens,
             rules,
+            root_rule: root.expect("No root found in the ast definition file! Use * to define a root")
         })
     }
 
