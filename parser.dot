@@ -1,0 +1,71 @@
+digraph AST {
+	subgraph cluster_stmt {
+		stmt [style = filled; color = red;]
+		stmt_1 [label = "{: 0"; style = filled; shape = "ellipse"]
+		stmt_2 [label = "expressions: 0"; style = filled; shape = "ellipse"]
+		stmt_3 [label = "}: 0"; style = filled; shape = "ellipse"]
+		stmt_4 [label = "expr: 1"; style = filled; shape = "ellipse"]
+		stmt -> stmt_1
+		stmt_1 -> stmt_2
+		stmt_2 -> stmt_3
+		stmt -> stmt_4
+	}
+	stmt_2 -> expressions
+	stmt_4 -> expr
+	subgraph cluster_param {
+		param [style = filled; color = red;]
+		param_1 [label = "name: 0"; style = filled; shape = "ellipse"]
+		param -> param_1
+	}
+	param_1 -> name
+	subgraph cluster_atom {
+		atom [style = filled; color = red;]
+		atom_1 [label = "call: 0"; style = filled; shape = "ellipse"]
+		atom_2 [label = "name: 1"; style = filled; shape = "ellipse"]
+		atom_3 [label = "(: 2"; style = filled; shape = "ellipse"]
+		atom_4 [label = "expr: 0"; style = filled; shape = "ellipse"]
+		atom_5 [label = "): 0"; style = filled; shape = "ellipse"]
+		atom_6 [label = "val: 3"; style = filled; shape = "ellipse"]
+		atom -> atom_1
+		atom -> atom_2
+		atom -> atom_3
+		atom_3 -> atom_4
+		atom_4 -> atom_5
+		atom -> atom_6
+	}
+	atom_1 -> call
+	atom_2 -> name
+	atom_4 -> expr
+	atom_6 -> val
+	subgraph cluster_call {
+		call [style = filled; color = red;]
+		call_1 [label = "name: 0"; style = filled; shape = "ellipse"]
+		call_2 [label = "(: 0"; style = filled; shape = "ellipse"]
+		call_3 [label = "args: 0"; style = filled; shape = "ellipse"]
+		call_4 [label = "): 0"; style = filled; shape = "ellipse"]
+		call -> call_1
+		call_1 -> call_2
+		call_2 -> call_3
+		call_3 -> call_4
+	}
+	call_1 -> name
+	call_3 -> args
+	subgraph cluster_func {
+		func [style = filled; color = red;]
+		func_1 [label = "fn: 0"; style = filled; shape = "ellipse"]
+		func_2 [label = "name: 0"; style = filled; shape = "ellipse"]
+		func_3 [label = "(: 0"; style = filled; shape = "ellipse"]
+		func_4 [label = "params: 0"; style = filled; shape = "ellipse"]
+		func_5 [label = "): 0"; style = filled; shape = "ellipse"]
+		func_6 [label = "stmt: 0"; style = filled; shape = "ellipse"]
+		func -> func_1
+		func_1 -> func_2
+		func_2 -> func_3
+		func_3 -> func_4
+		func_4 -> func_5
+		func_5 -> func_6
+	}
+	func_2 -> name
+	func_4 -> params
+	func_6 -> stmt
+}

@@ -1,29 +1,12 @@
-name: ![a-z]+
-
-func: fn $name ( $params ) $body
-
-params: %[ $param , ]
+func: fn $name(![a-z]+) ( $params(%[ $param , ]) ) $stmt
 param: $name
+
+stmt: { $expressions(%[ $expr ; ]) }
+stmt: $expr
 
 atom: $call
 atom: $name
 atom: ( $expr )
-atom: %int
+atom: $val(%int)
 
-call: $name ( $args )
-args: %[ $expr , ]
-
-unary_op: ![!&|]
-unary: $unary_op $atom
-unary: $unary_op $unary
-unary: $atom
-
-mult: $unary * $mult
-mult: $unary * $unary
-mult: $unary
-
-add: $mult + $add
-add: $mult + $mult
-add: $mult
-
-expr: $add
+call: $name ( $args(%[ $expr , ]) )

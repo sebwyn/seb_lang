@@ -1,28 +1,52 @@
 use regex::Regex;
 
+use std::collections::HashMap;
+
+pub type RuleMap = HashMap<String, SymTree>;
+
+#[derive(Debug, Clone)]
+pub struct ArrayType {
+    pub kind: Box<Kind>,
+    pub separator: String,
+}
+
+impl PartialEq for ArrayType {
+    fn eq(&self, other: &Self) -> bool {
+        self.kind == other.kind && self.separator == other.separator
+    }
+}
+
+//an object is a kind of variable, and its kind of builtin, but its not atomic
+#[derive(Debug, Clone)]
+pub enum Kind {
+    Reg(Regex),
+    Array(ArrayType),
+    Int,
+    UnknownSym(String)
+}
+
+impl PartialEq for Kind {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Self::Reg(l0), Self::Reg(r0)) => l0.as_str() == r0.as_str(),
+            (Self::Array(l0), Self::Array(r0)) => l0 == r0,
+            (Self::UnknownSym(l0), Self::UnknownSym(r0)) => l0 == r0,
+            _ => core::mem::discriminant(self) == core::mem::discriminant(other),
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub enum Sym {
-    //non data objects
     Token(String), //just a token
-    Reg(Regex),    //a regex match, potentially mapped to a type
-
-    //data objects
-    Var(String), //could be a rule, could be a token its used to construct data
-
-    //this is a functional search unit, where it will keep searching for tokens
-    //using the last item as the separator %[ $expr , ]
-    Array((Box<Sym>, String)),
-
-    Int,
+    Var((String, Kind)), //has an underlying type
 }
 
 impl PartialEq for Sym {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
             (Self::Token(l0), Self::Token(r0)) => l0 == r0,
-            (Self::Reg(l0), Self::Reg(r0)) => l0.as_str() == r0.as_str(),
             (Self::Var(l0), Self::Var(r0)) => l0 == r0,
-            (Self::Array(l0), Self::Array(r0)) => l0 == r0,
             _ => core::mem::discriminant(self) == core::mem::discriminant(other),
         }
     }
